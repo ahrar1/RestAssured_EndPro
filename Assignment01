@@ -1,0 +1,71 @@
+package courseEndProject;
+
+import java.io.File;
+
+import org.apache.logging.log4j.LogManager;
+import org.hamcrest.Matchers;
+import org.testng.annotations.Test;
+
+import io.cucumber.core.logging.Logger;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+public class Assignment001Demo {
+	
+
+	@Test(priority='1')
+	public void Assignment001Post() {
+		
+		
+		
+		File file = new File("C:\\Users\\KIIT\\eclipse-workspace\\Phase3_RestAssure\\src\\main\\resource\\data.json");
+		int id = RestAssured.given()
+				.baseUri("https://petstore.swagger.io/v2/pet")
+				.contentType(ContentType.JSON)
+				.body(file)
+				.when().post()
+				.then()
+				.statusCode(200)
+				.log().all()
+				.body("name", Matchers.equalTo("duck")).extract().path("id");
+				
+				System.out.println(id);
+				
+			
+		
+	}
+	@Test(priority='2', dependsOnMethods="Assignment001Post")
+	public void assignment001Get() {
+		
+		
+		
+		int id = RestAssured.given()
+				.baseUri("https://petstore.swagger.io/v2/pet/344")
+				.when().get()
+				.then().statusCode(200)
+				.log().all()
+				.body("status", Matchers.equalTo("available")).extract().path("category.id");
+		System.out.println(id);
+		
+	}
+	
+	@Test(priority='3', dependsOnMethods="assignment001Get")
+	public void assignment001Delete() {
+		
+	
+		RestAssured.given()
+				.baseUri("https://petstore.swagger.io/v2/pet/344")
+				.when().delete()
+				.then().statusCode(200)
+				.log().all()
+				.body("code", Matchers.equalTo(200))
+				.body("type", Matchers.equalTo("unknown"))
+				.body("message", Matchers.equalTo("344"));
+						
+	}
+	
+	
+	
+
+
+}
